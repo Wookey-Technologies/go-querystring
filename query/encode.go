@@ -80,6 +80,17 @@ type Encoder interface {
 // Including the "int" option signals that the field should be encoded as the
 // strings "1" or "0".
 //
+// A special boolean option is "seen".  On encode, the field is ignored and
+// treated like "-".  On decode, the tagged field is set to true if the value
+// with name given by the tag's field name override exists in the url.Values
+// set.  Example:
+//
+//   EnableSeen    bool   `url:"enable,seen"`
+//
+// If url.Values contains an entry for "enable", even if no value was
+// assigned, the "EnableSeen" field will be set to 'true' indicating that
+// the value was seen.
+//
 // time.Time values default to encoding as RFC3339 timestamps.  Including the
 // "unix" option signals that the field should be encoded as a Unix time (see
 // time.Unix())
@@ -162,7 +173,7 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 			name = scope + "[" + name + "]"
 		}
 
-		if opts.Contains("omitempty") && isEmptyValue(sv) {
+		if opts.Contains("seen") || (opts.Contains("omitempty") && isEmptyValue(sv)) {
 			continue
 		}
 

@@ -150,6 +150,19 @@ func TestValues_types(t *testing.T) {
 			nil,
 			url.Values{},
 		},
+		{
+			// "seen" harmless and passive on encode
+			struct {
+				A string
+				E bool `url:"A,seen"`
+			}{
+				A: "init me",
+				E: false,
+			},
+			url.Values{
+				"A": {"init me"},
+			},
+		},
 	}
 
 	for i, tt := range tests {
